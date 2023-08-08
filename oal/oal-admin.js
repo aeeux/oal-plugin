@@ -1,56 +1,55 @@
 jQuery(document).ready(function ($) {
-  // Fetch products
-  function fetchProducts() {
-    $.getJSON("/wp-json/cpd/v1/products", function (products) {
-      var tbody = $("#cpd-products-table tbody");
+  // Fetch cars
+  function fetchCars() {
+    $.getJSON("/beta2/wp-json/oal/v1/cars", function (allCars) {
+      var tbody = $("#oal-cars-table tbody");
       tbody.empty();
 
-      if (products.length === 0) {
-        tbody.append('<tr><td colspan="6">No products found.</td></tr>');
+      // Check if cars are empty
+      if (Object.keys(allCars).length === 0) {
+        tbody.append('<tr><td colspan="7">No cars found.</td></tr>');
         return;
       }
 
-      products.forEach(function (product) {
-        var row = $("<tr></tr>");
-        row.append("<td>" + product.id + "</td>");
-        row.append("<td>" + product.name + "</td>");
-        row.append(
-          '<td><img src="' + product.image + '" width="50" height="50" /></td>'
-        );
-        row.append("<td>" + product.description + "</td>");
-        row.append("<td>$" + product.price.toFixed(2) + "</td>");
+      // Loop through users
+      $.each(allCars, function (username, brands) {
+        // Loop through brands
+        $.each(brands, function (brand, models) {
+          // Loop through models
+          $.each(models, function (model, car) {
+            var row = $("<tr></tr>");
+            row.append("<td>" + car.id + "</td>");
+            row.append("<td>" + username + "</td>");
+            row.append("<td>" + brand + "</td>");
+            row.append("<td>" + model + "</td>");
+            row.append("<td>" + car.description + "</td>");
+            row.append("<td>$" + car.price.toFixed(2) + "</td>");
+            row.append(
+              '<td><img src="' + car.image + '" width="50" height="50" /></td>'
+            );
 
-        var actions = $("<td></td>");
-        actions.append(
-          '<button class="button edit-product" data-id="' +
-            product.id +
-            '">Edit</button> '
-        );
-        actions.append(
-          '<button class="button delete-product" data-id="' +
-            product.id +
-            '">Delete</button>'
-        );
-        row.append(actions);
+            var actions = $("<td></td>");
+            actions.append(
+              '<button class="button delete-car" data-id="' +
+                car.id +
+                '">Delete</button>'
+            );
+            row.append(actions);
 
-        tbody.append(row);
+            tbody.append(row);
+          });
+        });
       });
     });
   }
 
-  fetchProducts();
+  fetchCars();
 
-  // Edit product
-  $(document).on("click", ".edit-product", function () {
-    var id = $(this).data("id");
-    // Implement the edit functionality here
-  });
-
-  // Delete product
-  $(document).on("click", ".delete-product", function () {
+  // Delete car
+  $(document).on("click", ".delete-car", function () {
     var id = $(this).data("id");
     var confirmDelete = confirm(
-      "Are you sure you want to delete the product with ID: " + id + "?"
+      "Are you sure you want to delete the car with ID: " + id + "?"
     );
 
     if (!confirmDelete) {
@@ -59,28 +58,26 @@ jQuery(document).ready(function ($) {
 
     $.ajax({
       method: "POST",
-      url: cpd_ajax.url,
+      url: oal_ajax.url,
       data: {
-        action: "cpd_delete_product",
-        nonce: cpd_ajax.nonce,
+        action: "oal_delete_car",
+        nonce: oal_ajax.nonce,
         id: id,
       },
       success: function (response) {
         if (response.success) {
-          alert("Product deleted successfully.");
-          fetchProducts();
+          alert("Car deleted successfully.");
+          fetchCars();
         } else {
-          alert("Error deleting the product.");
+          alert("Error deleting the car.");
         }
       },
     });
   });
 
   // Purge all data
-  $("#cpd-purge-data").on("click", function () {
-    var confirmPurge = confirm(
-      "Are you sure you want to purge all product data?"
-    );
+  $("#oal-purge-data").on("click", function () {
+    var confirmPurge = confirm("Are you sure you want to purge all car data?");
 
     if (!confirmPurge) {
       return;
@@ -88,17 +85,17 @@ jQuery(document).ready(function ($) {
 
     $.ajax({
       method: "POST",
-      url: cpd_ajax.url,
+      url: oal_ajax.url,
       data: {
-        action: "cpd_purge_data",
-        nonce: cpd_ajax.nonce,
+        action: "oal_purge_data",
+        nonce: oal_ajax.nonce,
       },
       success: function (response) {
         if (response.success) {
-          alert("All product data purged successfully.");
-          fetchProducts();
+          alert("All car data purged successfully.");
+          fetchCars();
         } else {
-          alert("Error purging product data.");
+          alert("Error purging car data.");
         }
       },
     });

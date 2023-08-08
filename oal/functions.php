@@ -11,17 +11,17 @@ if (!defined('ABSPATH')) {
 }
 
 //create a menu item in the dashboard
-function cpd_create_menu() {
+function oal_create_menu() {
     add_menu_page(
-        'Custom Product Dashboard',
-        'Custom Product Dashboard',
+        'Oal Dashboard',
+        'Oal Dashboard',
         'activate_plugins',
-        'custom-product-dashboard',
-        'cpd_display_page'
+        'oal-dashboard',
+        'oal_display_page'
     );
 }
 
-add_action('admin_menu', 'cpd_create_menu');
+add_action('admin_menu', 'oal_create_menu');
 
 //custom Dashboard UI
 function oal_display_page() {
@@ -40,10 +40,6 @@ function oal_display_page() {
 
             <table class="form-table">
                 <tr>
-                    <th scope="row"><label for="username">Username</label></th>
-                    <td><input name="username" type="text" id="username" class="regular-text" required /></td>
-                </tr>
-                <tr>
                     <th scope="row"><label for="brand_name">Brand Name</label></th>
                     <td><input name="brand_name" type="text" id="brand_name" class="regular-text" required /></td>
                 </tr>
@@ -51,13 +47,33 @@ function oal_display_page() {
                     <th scope="row"><label for="model_name">Model Name</label></th>
                     <td><input name="model_name" type="text" id="model_name" class="regular-text" required /></td>
                 </tr>
-                <!-- ... (other fields similar to before, e.g., description, price, ydelse, restværdi, image) ... -->
+                <tr>
+                    <th scope="row"><label for="description">Description</label></th>
+                    <td><textarea name="description" id="description" class="large-text" rows="4" required></textarea></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="price">Price</label></th>
+                    <td><input name="price" type="number" step="0.01" id="price" class="regular-text" required /></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="ydelse">Ydelse</label></th>
+                    <td><input name="ydelse" type="text" id="ydelse" class="regular-text" required /></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="restværdi">Restværdi</label></th>
+                    <td><input name="restværdi" type="text" id="restværdi" class="regular-text" required /></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="car_image">Image</label></th>
+                    <td><input type="file" name="car_image" id="car_image" required></td>
+                </tr>
             </table>
             <?php submit_button('Save Car'); ?>
         </form>
     </div>
     <?php
 }
+
 
 
 function oal_save_car() {
@@ -130,6 +146,7 @@ function oal_register_api_endpoints() {
         'callback' => 'oal_get_cars',
     ));
 }
+
 add_action('rest_api_init', 'oal_register_api_endpoints');
 
 
