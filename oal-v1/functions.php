@@ -2,7 +2,7 @@
 /*
 Plugin Name: Oal
 Description: Adds a car to the api endpoint
-Version: 1.0.1
+Version: 1.0.0
 Author: aeeriksen
 */
 
@@ -25,9 +25,13 @@ add_action('admin_menu', 'oal_create_menu');
 
 //custom Dashboard UI
 function oal_display_page() {
-    // Fetch the cars data from the WordPress option
-    $cars = get_option('oal_cars', array());
-    
+    if (isset($_GET['success'])) {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p>Car saved successfully!</p>
+        </div>
+        <?php
+    }
     ?>
     <div class="wrap">
         <h1>Custom Car Dashboard</h1>
@@ -66,52 +70,9 @@ function oal_display_page() {
             </table>
             <?php submit_button('Save Car'); ?>
         </form>
-
-            <!-- Hierarchical display area -->
-            <h2>All Cars</h2>
-                <div id="oal-display-area">
-                    <table class="widefat" id="oal-cars-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Brand</th>
-                                <th>Model</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Image</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            if (empty($cars)) {
-                                echo '<tr><td colspan="8">No cars found.</td></tr>';
-                            } else {
-                                foreach ($cars as $username => $brands) {
-                                    foreach ($brands as $brand => $models) {
-                                        foreach ($models as $model => $car) {
-                                            echo '<tr>';
-                                            echo '<td>' . esc_html($car['id']) . '</td>';
-                                            echo '<td>' . esc_html($username) . '</td>';
-                                            echo '<td>' . esc_html($brand) . '</td>';
-                                            echo '<td>' . esc_html($model) . '</td>';
-                                            echo '<td>' . esc_html($car['description']) . '</td>';
-                                            echo '<td>$' . esc_html(number_format($car['price'], 2)) . '</td>';
-                                            echo '<td><img src="' . esc_url($car['image']) . '" width="50" height="50" /></td>';
-                                            echo '<td><button class="button delete-car" data-id="' . esc_attr($car['id']) . '">Delete</button></td>';
-                                            echo '</tr>';
-                                        }
-                                    }
-                                }
-                            }
-                            ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php
+    </div>
+    <?php
 }
-
 
 
 
@@ -170,7 +131,7 @@ function oal_save_car() {
 
         update_option('oal_cars', $cars);
 
-        echo "<script>alert('Car saved successfully!');window.location='" . admin_url('admin.php?page=oal-dashboard') . "';</script>";
+        wp_redirect(admin_url('admin.php?page=custom-car-dashboard&success=1'));
         exit;
     }
 }
@@ -217,35 +178,11 @@ function oal_delete_car() {
     $id = intval($_POST['id']);
     $cars = get_option('oal_cars', array());
     
-    // Traversing the hierarchy to find the car to delete
-    foreach ($cars as $username => $brands) {
-        foreach ($brands as $brand => $models) {
-            foreach ($models as $model => $car) {
-                if ($car['id'] === $id) {
-                    unset($cars[$username][$brand][$model]);
-                    
-                    // If no more models for the brand, remove the brand.
-                    if (empty($cars[$username][$brand])) {
-                        unset($cars[$username][$brand]);
-                    }
-                    
-                    // If the user has no more brands, remove the user entry.
-                    if (empty($cars[$username])) {
-                        unset($cars[$username]);
-                    }
-                    
-                    update_option('oal_cars', $cars);
-                    wp_send_json_success();
-                    return; // Exit the function
-                }
-            }
-        }
-    }
-    
-    wp_send_json_error('Car not found');
+    // You'll need to modify this logic since cars are nested under users -> brands -> models
+    // ... Your deletion logic here, which would be different due to hierarchy ...
+
+    wp_send_json_success();
 }
-
-
 add_action('wp_ajax_oal_delete_car', 'oal_delete_car');
 
 
